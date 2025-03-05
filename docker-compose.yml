@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  # Postgres database with custom init scripts
+  postgres:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d  # Mount init scripts
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Database setup service - runs once to ensure DB is created
+  db-setup:
+    image: postgres:16
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: >
+      bash -c "
+        echo 'Waiting for PostgreSQL to be ready...'
+        until PGPASSWORD=postgres_password psql -h postgres -U postgres -c 'SELECT 1' > /dev/null 2>&1; do
+          echo 'Waiting for PostgreSQL...'
+          sleep 1
+        done
+        
+        echo 'PostgreSQL is ready, checking if convex_self_hosted database exists...'
+        if PGPASSWORD=postgres_password psql -h postgres -U postgres -lqt | cut -d \| -f 1 | grep -qw convex_self_hosted; then
+          echo 'Database convex_self_hosted already exists'
+        else
+          echo 'Creating convex_self_hosted database...'
+          PGPASSWORD=postgres_password psql -h postgres -U postgres -c 'CREATE DATABASE convex_self_hosted'
+          echo 'Database created successfully!'
+        fi
+      "
+
+  # Convex backend
+  backend:
+    image: ghcr.io/get-convex/convex-backend:86ae5d34c8164075b66fa0c52beabd19212d8df7
+    restart: always
+    ports:
+      - "3210:3210"
+      - "3211:3211"
+    volumes:
+      - ./backend:/app/backend
+      - convex_data:/convex/data
+    environment:
+      - INSTANCE_NAME=convex-self-hosted
+      - INSTANCE_SECRET=4361726e697461732c206c69746572616c6c79206d65616e696e6720226c6974
+      - CONVEX_CLOUD_ORIGIN=http://localhost:3210
+      - CONVEX_SITE_ORIGIN=http://localhost:3211
+      - DATABASE_URL=postgresql://postgres:postgres_password@postgres:5432
+      - POSTGRES_URL=postgresql://postgres:postgres_password@postgres:5432
+      - DO_NOT_REQUIRE_SSL=1
+      - RUST_LOG=debug
+    depends_on:
+      db-setup:
+        condition: service_completed_successfully
+    healthcheck:
+      test: curl -f http://localhost:3210/version || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # Convex dashboard
+  dashboard:
+    image: ghcr.io/get-convex/convex-dashboard:86ae5d34c8164075b66fa0c52beabd19212d8df7
+    restart: always
+    ports:
+      - "6791:6791"
+    environment:
+      - NEXT_PUBLIC_DEPLOYMENT_URL=http://localhost:3210
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Keycloak for OAuth 2.0
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    restart: always
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: false
+      # Add the health endpoints explicitly
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: start-dev
+    healthcheck:
+      # Health check with a longer timeout and more retries
+      test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/"]
+      interval: 15s
+      timeout: 10s
+      retries: 15
+      start_period: 60s
+
+
+  # Initialization service (for Keycloak configuration)
+  # init-service:
+  #   image: node:18-alpine
+  #   volumes:
+  #     - ./backend:/app/backend
+  #     - ./frontend:/app/frontend
+  #     - ./init-all.sh:/init-all.sh
+  #   depends_on:
+  #     backend:
+  #       condition: service_healthy
+  #     keycloak:
+  #       condition: service_started
+  #   environment:
+  #     - DOCKER_HOST=unix:///var/run/docker.sock
+  #   command: >
+  #     /bin/sh -c "
+  #       echo '===== Running post-startup initialization ====='
+  #       apk add --no-cache curl jq grep sed bash docker-cli gettext
+  #       chmod +x /init-all.sh
+  #       bash /init-all.sh
+  #     "
+
+volumes:
+  postgres_data:
+  convex_data:

@@ -1,0 +1,18 @@
+{
+	"functions": "./convex/",
+	"self-hosted": {
+	  "url": "http://localhost:3210",
+	  "adminKey": ""
+	},
+	"authInfo": [
+	  {
+		"domain": "http://localhost:8080",
+		"applicationID": "vite-app"
+	  }
+	],
+	"environment": [
+	  "KEYCLOAK_URL", 
+	  "KEYCLOAK_REALM", 
+	  "KEYCLOAK_CLIENT_ID"
+	]
+  }
