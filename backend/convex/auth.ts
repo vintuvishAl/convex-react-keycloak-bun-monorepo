@@ -38,15 +38,6 @@ function parseJwtWithoutVerification(token: string): any {
   }
 }
 
-// Function to check if JWT is expired
-function isTokenExpired(decodedToken: any): boolean {
-  if (!decodedToken || !decodedToken.exp) {
-    return true;
-  }
-  const currentTime = Math.floor(Date.now() / 1000);
-  return decodedToken.exp < currentTime;
-}
-
 // Simple in-memory rate limiting with configurable values from env
 const rateLimiter = new Map<string, { count: number; timestamp: number }>();
 const RATE_LIMIT_WINDOW = parseInt(process.env.AUTH_RATE_LIMIT_WINDOW || "60000"); // Default to 1 minute
