@@ -3,7 +3,7 @@ import Keycloak from 'keycloak-js';
 import { verifyToken } from './convex';
 
 // User interface
-interface UserInfo {
+export interface UserInfo {
   id?: string;
   username?: string;
   email?: string;

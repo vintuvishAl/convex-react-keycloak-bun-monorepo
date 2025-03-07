@@ -25,20 +25,6 @@ export default defineSchema({
     updatedAt: v.optional(v.string()),
   }),
   
-  // Products table
-  products: defineTable({
-    name: v.string(),
-    description: v.string(),
-    price: v.number(),
-    category: v.string(),
-    stockQuantity: v.number(),
-    imageUrl: v.optional(v.string()),
-    userId: v.string(), // Creator/owner of the product
-    isActive: v.boolean(),
-    createdAt: v.string(),
-    updatedAt: v.optional(v.string()),
-  }).index("by_category", ["category"])
-    .index("by_user_id", ["userId"]),
   
   // Users table for storing user information from Keycloak
   users: defineTable({
