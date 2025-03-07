@@ -1,18 +1,30 @@
 {
-	"functions": "./convex/",
-	"self-hosted": {
-	  "url": "http://localhost:3210",
-	  "adminKey": ""
-	},
-	"authInfo": [
-	  {
-		"domain": "http://localhost:8080",
-		"applicationID": "convex"
-	  }
-	],
-	"environment": [
-	  "http://localhost:8080", 
-	  "master", 
-	  "convex"
-	]
-  }
+  "functions": "./convex",
+  "cors": {
+    "origins": [
+      "http://localhost:5173",
+      "http://localhost:3000"
+    ],
+    "headers": [
+      "Authorization",
+      "Content-Type"
+    ],
+    "maxAge": 86400
+  },
+  "self-hosted": {
+    "url": "http://localhost:3210",
+    "adminKey": ""
+  },
+  "authInfo": [
+    {
+      "domain": "http://localhost:8080/realms/master",
+      "applicationID": "vite-app",
+      "audiences": ["master-realm", "account"]
+    }
+  ],
+  "environment": [
+    "http://localhost:8080",
+    "master",
+    "vite-app"
+  ]
+}

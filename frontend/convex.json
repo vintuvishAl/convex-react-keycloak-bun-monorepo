@@ -1,5 +1,22 @@
 {
 	"selfHosted": {
 	  "url": "http://localhost:3210"
-	}
+	},
+	"authInfo": [
+	  {
+		"domain": "http://localhost:8080/realms/master",
+		"applicationID": "vite-app",
+		"audiences": ["master-realm", "account"]
+	  },
+	  {
+		"domain": "http://keycloak:8080/realms/master",
+		"applicationID": "vite-app",
+		"audiences": ["master-realm", "account"]
+	  }
+	],
+	"environment": [
+	  "http://localhost:8080",
+	  "master",
+	  "vite-app"
+	]
   }

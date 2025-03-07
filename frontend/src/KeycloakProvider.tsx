@@ -58,31 +58,44 @@ export const KeycloakProvider: React.FC<{
   const [initialized, setInitialized] = useState(false);
   const [user, setUser] = useState<UserInfo | null>(null);
   const [tokenVerified, setTokenVerified] = useState(false);
+  const [initializationError, setInitializationError] = useState<string | null>(null);
   const keycloakRef = useRef<Keycloak | null>(null);
+  const refreshIntervalRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
+  // Cleanup function
+  const cleanup = () => {
+    if (refreshIntervalRef.current) {
+      clearInterval(refreshIntervalRef.current);
+    }
+    setUser(null);
+    setTokenVerified(false);
+    setInitialized(false);
+  };
+
+  // Initialize Keycloak
   useEffect(() => {
-    if (!keycloakRef.current) {
-      keycloakRef.current = createKeycloakInstance(config);
+    const initKeycloak = async () => {
+      try {
+        if (!keycloakRef.current) {
+          keycloakRef.current = createKeycloakInstance(config);
+          const keycloak = keycloakRef.current;
+          
+          // Make Keycloak instance globally available for Convex
+          (window as any).keycloakInstance = keycloak;
 
-      const keycloak = keycloakRef.current;
-      
-      // Make Keycloak instance globally available for Convex
-      (window as any).keycloakInstance = keycloak;
+          // Initialize with silent check-sso first
+          const authenticated = await keycloak.init({
+            onLoad: 'check-sso',
+            silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+            pkceMethod: 'S256',
+            checkLoginIframe: false,
+            scope: 'openid profile email',
+            enableLogging: process.env.NODE_ENV === 'development',
+            responseMode: 'fragment',
+            flow: 'standard'
+          });
 
-      // Initialize Keycloak
-      keycloak
-        .init({
-          onLoad: 'check-sso',
-          pkceMethod: 'S256',
-          checkLoginIframe: false,
-          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html'
-        })
-        .then((authenticated: boolean) => {
-          console.log(
-            authenticated 
-              ? 'User is authenticated' 
-              : 'User is not authenticated'
-          );
+          console.log(authenticated ? 'User is authenticated' : 'User is not authenticated');
 
           if (authenticated && keycloak.tokenParsed) {
             const userInfo: UserInfo = {
@@ -94,64 +107,122 @@ export const KeycloakProvider: React.FC<{
             };
             setUser(userInfo);
             
-            // Verify token with backend after successful authentication
-            verifyToken()
-              .then(isValid => {
+            // Wait for Convex to be ready before verifying token
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Initial token verification with retry
+            let verificationAttempts = 0;
+            const maxVerificationAttempts = 3;
+            
+            while (verificationAttempts < maxVerificationAttempts) {
+              try {
+                const isValid = await verifyToken();
                 setTokenVerified(isValid);
-                if (!isValid) {
-                  console.warn('Token verification failed, logging out');
-                  keycloak.logout({ redirectUri: window.location.origin + '/login' });
+                
+                if (isValid) {
+                  break;
+                } else {
+                  console.warn(`Token verification attempt ${verificationAttempts + 1} failed`);
+                  if (verificationAttempts === maxVerificationAttempts - 1) {
+                    throw new Error('Initial token verification failed after retries');
+                  }
+                  await new Promise(resolve => setTimeout(resolve, 1000));
                 }
-              })
-              .catch(error => {
-                console.error('Error verifying token:', error);
-                setTokenVerified(false);
-              });
-          }
-          
-          setInitialized(true);
-        })
-        .catch((error: unknown) => {
-          console.error('Keycloak initialization error:', error);
-          setInitialized(true);
-        });
-
-      // Setup token refresh
-      if (keycloak.authenticated) {
-        // Set up token refresh
-        const refreshInterval = setInterval(() => {
-          keycloak
-            .updateToken(70)
-            .then(refreshed => {
-              if (refreshed) {
-                console.log('Token refreshed');
-                // Verify the refreshed token
-                verifyToken()
-                  .then(isValid => {
-                    setTokenVerified(isValid);
-                    if (!isValid) {
-                      console.warn('Refreshed token verification failed, logging out');
-                      keycloak.logout({ redirectUri: window.location.origin + '/login' });
-                    }
-                  })
-                  .catch(error => {
-                    console.error('Error verifying refreshed token:', error);
-                    setTokenVerified(false);
-                  });
+              } catch (error) {
+                console.error(`Verification attempt ${verificationAttempts + 1} error:`, error);
+                if (verificationAttempts === maxVerificationAttempts - 1) {
+                  throw error;
+                }
               }
-            })
-            .catch(error => {
-              console.error('Failed to refresh token:', error);
-              keycloak.logout();
-            });
-        }, 60000); // Check every minute
+              verificationAttempts++;
+            }
 
-        return () => {
-          clearInterval(refreshInterval);
-        };
+            // Setup token refresh
+            setupTokenRefresh(keycloak);
+          }
+
+          setInitialized(true);
+        }
+      } catch (error) {
+        console.error('Keycloak initialization error:', error);
+        setInitializationError(error instanceof Error ? error.message : 'Unknown error');
+        cleanup();
+        
+        // Attempt recovery
+        sessionStorage.clear();
+        if (keycloakRef.current?.authenticated) {
+          await keycloakRef.current.logout({
+            redirectUri: window.location.origin + '/login'
+          });
+        }
       }
-    }
+    };
+
+    initKeycloak();
+
+    return cleanup;
   }, [config]);
+
+  // Setup token refresh logic
+  const setupTokenRefresh = (keycloak: Keycloak) => {
+    if (!keycloak.authenticated) return;
+
+    let refreshInProgress = false;
+    let lastRefreshTime = Date.now();
+    const MIN_REFRESH_INTERVAL = 10000;
+    const REFRESH_SAFETY_MARGIN = 120;
+
+    refreshIntervalRef.current = setInterval(async () => {
+      try {
+        if (refreshInProgress || !keycloak.authenticated) {
+          return;
+        }
+
+        const timeSinceLastRefresh = Date.now() - lastRefreshTime;
+        if (timeSinceLastRefresh < MIN_REFRESH_INTERVAL) {
+          return;
+        }
+
+        refreshInProgress = true;
+        const timeToExpiry = keycloak.tokenParsed?.exp 
+          ? keycloak.tokenParsed.exp - Math.floor(Date.now() / 1000)
+          : 0;
+
+        if (timeToExpiry <= REFRESH_SAFETY_MARGIN) {
+          const refreshed = await keycloak.updateToken(REFRESH_SAFETY_MARGIN);
+          lastRefreshTime = Date.now();
+          
+          if (refreshed) {
+            console.log('Token refreshed');
+            const isValid = await verifyToken();
+            setTokenVerified(isValid);
+            
+            if (!isValid) {
+              throw new Error('Refreshed token verification failed');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Token refresh failed:', error);
+        cleanup();
+        sessionStorage.clear();
+        await keycloak.logout({
+          redirectUri: window.location.origin + '/login'
+        });
+      } finally {
+        refreshInProgress = false;
+      }
+    }, 30000);
+  };
+
+  // Show loading or error state
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
+  if (initializationError) {
+    return <div>Error initializing Keycloak: {initializationError}</div>;
+  }
 
   return (
     <KeycloakContext.Provider 
