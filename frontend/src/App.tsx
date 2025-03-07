@@ -35,8 +35,8 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider>
-        <ConvexProvider client={convex}>
-          <KeycloakProvider config={keycloakConfig}>
+        <KeycloakProvider config={keycloakConfig}>
+          <ConvexProvider client={convex}>
             <BaseLayout>
               <Routes>
                 {/* Public routes */}
@@ -52,8 +52,8 @@ function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </BaseLayout>
-          </KeycloakProvider>
-        </ConvexProvider>
+          </ConvexProvider>
+        </KeycloakProvider>
       </ThemeProvider>
     </BrowserRouter>
   );

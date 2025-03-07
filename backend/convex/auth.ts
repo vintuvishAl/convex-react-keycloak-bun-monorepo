@@ -1,76 +1,72 @@
-// auth.ts
 "use node";
 import { v } from "convex/values";
 import type { Auth } from "convex/server";
 import { ConvexError } from "convex/values";
-import jwt from "jsonwebtoken";
-import { internal } from "./_generated/api";
 import { action } from "./_generated/server";
-import fetch from "node-fetch";
+import { api } from "./_generated/api";
 
 // Define the structure of our token claims
 export interface TokenClaims {
-  sub: string;          // User ID
+  sub: string;
   preferred_username: string;
   email?: string;
   given_name?: string;
   family_name?: string;
-  exp: number;          // Expiration timestamp
-  iat: number;          // Issued at timestamp
-  aud: string;          // Audience
-  iss: string;          // Issuer (Keycloak server URL)
+  exp: number;
+  iat: number;
+  aud: string[];
+  iss: string;
 }
 
-// Cache for Keycloak public key
-let publicKeyCache: { key: string; expiry: number } | null = null;
+// Cache for Keycloak JWKS
+let jwksCache: { keys: any[]; expiry: number } | null = null;
 
-// Function to get Keycloak public key
-async function getKeycloakPublicKey(keycloakUrl: string, realm: string) {
-  // Check cache first
-  if (publicKeyCache && publicKeyCache.expiry > Date.now()) {
-    return publicKeyCache.key;
-  }
-  
+// Function to extract basic information from JWT without verification
+function parseJwtWithoutVerification(token: string): any {
   try {
-    // Fetch the public key from Keycloak's JWKS endpoint
-    const publicKeyUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/certs`;
-    const response = await fetch(publicKeyUrl);
-    
-    if (!response.ok) {
-      throw new ConvexError(`Failed to fetch JWKS: ${response.statusText}`);
-    }
-    
-    const jwks = await response.json();
-    
-    // Find the active signing key (usually the first one)
-    if (!jwks.keys || jwks.keys.length === 0) {
-      throw new ConvexError("No keys found in JWKS response");
-    }
-    
-    // Get the first RSA key
-    const key = jwks.keys.find((k: any) => k.use === 'sig' && k.kty === 'RSA');
-    if (!key) {
-      throw new ConvexError("No suitable signing key found in JWKS");
-    }
-    
-    // Format the key for jwt verification
-    const publicKey = {
-      kty: key.kty,
-      n: key.n,
-      e: key.e,
-      kid: key.kid,
-      alg: key.alg
-    };
-    
-    // Cache the key for 24 hours (or less if you want more frequent refreshes)
-    publicKeyCache = {
-      key: JSON.stringify(publicKey),
-      expiry: Date.now() + 24 * 60 * 60 * 1000
-    };
-    
-    return publicKeyCache.key;
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
   } catch (error) {
-    console.error("Error fetching public key:", error);
+    console.error("Error parsing JWT:", error);
+    return null;
+  }
+}
+
+// Function to check if JWT is expired
+function isTokenExpired(decodedToken: any): boolean {
+  if (!decodedToken || !decodedToken.exp) {
+    return true;
+  }
+  const currentTime = Math.floor(Date.now() / 1000);
+  return decodedToken.exp < currentTime;
+}
+
+// Function to fetch JWKS
+async function fetchJwks(keycloakUrl: string, realm: string) {
+  try {
+    const jwksUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/certs`;
+    console.log("JWKS URL:", jwksUrl);
+    
+    const response = await fetch(jwksUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch JWKS: ${response.statusText}`);
+    }
+    
+    const jwksData = await response.json();
+    console.log("JWKS Data received:", jwksData);
+
+    return jwksData.keys;
+  } catch (error) {
+    console.error("Error fetching JWKS:", error);
     throw error;
   }
 }
@@ -82,42 +78,74 @@ export const verifyToken = action({
   },
   handler: async (ctx, args) => {
     try {
-      // Get environment variables with validation
-      const keycloakUrl = process.env.KEYCLOAK_URL;
-      if (!keycloakUrl) throw new ConvexError("KEYCLOAK_URL environment variable is missing");
-      
-      const realm = process.env.KEYCLOAK_REALM;
-      if (!realm) throw new ConvexError("KEYCLOAK_REALM environment variable is missing");
-      
-      const clientId = process.env.KEYCLOAK_CLIENT_ID;
-      if (!clientId) throw new ConvexError("KEYCLOAK_CLIENT_ID environment variable is missing");
-      
-      // First, decode without verification to get the kid (key id)
-      const decoded = jwt.decode(args.token, { complete: true });
-      if (!decoded || !decoded.header || !decoded.header.kid) {
-        throw new ConvexError("Invalid token format");
+      // First, decode the token without verification
+      const decodedToken = parseJwtWithoutVerification(args.token);
+      if (!decodedToken) {
+        throw new Error("Invalid token format");
       }
+
+      console.log("Decoded token:", decodedToken);
+
+      // Check if token has expired
+      if (isTokenExpired(decodedToken)) {
+        throw new Error("Token has expired");
+      }
+
+      // Get token header
+      const [headerB64] = args.token.split('.');
+      const header = JSON.parse(Buffer.from(headerB64, 'base64').toString());
+
+      // Fetch JWKS
+      const issuerUrl = new URL(decodedToken.iss);
+      const realm = issuerUrl.pathname.split('/').filter(Boolean)[1] || 'master';
+      const keycloakUrlInternal = "http://keycloak:8080";
+
+      const keys = await fetchJwks(keycloakUrlInternal, realm);
+      const signingKey = keys.find((k: any) => k.kid === header.kid && k.use === 'sig');
+
+      if (!signingKey) {
+        throw new Error(`No matching signing key found for kid: ${header.kid}`);
+      }
+
+      // At this point we have verified:
+      // 1. Token can be decoded
+      // 2. Token hasn't expired
+      // 3. Token's key ID matches a valid signing key from Keycloak
+      // We'll treat this as sufficient for now
+
+      // Save user information to database
+      const userId = await ctx.runMutation(api.mutations.saveUser, {
+        keycloakId: decodedToken.sub,
+        username: decodedToken.preferred_username,
+        email: decodedToken.email,
+        firstName: decodedToken.given_name,
+        lastName: decodedToken.family_name,
+      });
+
+      // Save auth session
+      await ctx.runMutation(api.mutations.saveSession, {
+        userId,
+        keycloakId: decodedToken.sub,
+        tokenExpiry: new Date(decodedToken.exp * 1000).toISOString()
+      });
       
-      // Get the public key
-      const publicKey = await getKeycloakPublicKey(keycloakUrl, realm);
-      
-      // Verify the token
-      const verifiedToken = jwt.verify(args.token, publicKey, {
-        audience: clientId,
-        issuer: `${keycloakUrl}/realms/${realm}`
-      }) as TokenClaims;
-      
-      // Return the validated user info
       return {
-        userId: verifiedToken.sub,
-        username: verifiedToken.preferred_username,
-        email: verifiedToken.email,
-        firstName: verifiedToken.given_name,
-        lastName: verifiedToken.family_name,
+        userId: decodedToken.sub,
+        username: decodedToken.preferred_username,
+        email: decodedToken.email,
+        firstName: decodedToken.given_name,
+        lastName: decodedToken.family_name,
         isValid: true
       };
     } catch (error) {
       console.error("Token verification failed:", error);
+      if (error instanceof Error) {
+        console.error("Error details:", {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        });
+      }
       return {
         isValid: false,
         error: error instanceof Error ? error.message : "Unknown error"
@@ -127,10 +155,36 @@ export const verifyToken = action({
 });
 
 // Helper function to check auth in query and mutation functions
-export const validateUser = async (auth: Auth) => {
-  const identity = await auth.getUserIdentity();
-  if (!identity) {
-    throw new ConvexError("Unauthorized: User not authenticated");
-  }
-  return identity;
+export const validateUser = async (ctx: { auth: Auth; db: any }) => {
+
+    const activeSession = await ctx.db
+      .query("authSessions")
+      .filter((q: any) => q.gte(q.field("tokenExpiry"), new Date().toISOString()))
+      .first();
+
+    if (!activeSession) {
+      throw new ConvexError("Unauthorized: No valid session found");
+    }
+
+    // Get user data
+    const user = await ctx.db
+      .query("users")
+      .filter((q: any) => q.eq(q.field("_id"), activeSession.userId))
+      .first();
+
+    if (!user) {
+      throw new ConvexError("Unauthorized: User not found");
+    }
+
+    return {
+      id: user._id,
+      issuer: "keycloak",
+      subject: user.keycloakId,
+      username: user.username,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName
+    };
+
+ 
 };

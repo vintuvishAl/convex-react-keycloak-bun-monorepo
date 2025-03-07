@@ -1,5 +1,6 @@
 import { ConvexReactClient } from "convex/react";
 import { Id } from "../../backend/convex/_generated/dataModel";
+import { api } from "@backend/convex/_generated/api";
 
 export type TaskId = Id<"tasks">;
 
@@ -29,6 +30,7 @@ export const keycloakAuthenticator = async () => {
   const keycloak = (window as any).keycloakInstance;
   
   if (!keycloak || !keycloak.authenticated) {
+    console.log("No Keycloak instance or not authenticated");
     return null;
   }
   
@@ -39,15 +41,52 @@ export const keycloakAuthenticator = async () => {
       console.log("Token was successfully updated");
     }
     
-    return keycloak.token as string;
+    const token = keycloak.token;
+    if (!token) {
+      console.error("No token available from Keycloak");
+      return null;
+    }
+
+    // Parse the token to get user information
+    const tokenData = parseJwt(token);
+    
+    // Return the auth object in the format Convex expects
+    return {
+      tokenData,
+      token,
+      // These fields are required by Convex for authentication
+      issuer: tokenData.iss,
+      subject: tokenData.sub,
+      tokenIdentifier: `${tokenData.iss}/${tokenData.sub}`,
+    };
   } catch (error) {
-    console.error("Failed to update token", error);
+    console.error("Failed to update/retrieve token:", error);
     return null;
   }
 };
 
-// Apply the authenticator
-convex.setAuth(() => keycloakAuthenticator());
+// Helper function to parse JWT without verification
+function parseJwt(token: string) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Error parsing JWT token:", e);
+    return {};
+  }
+}
+
+// Apply the authenticator and ensure we handle the Promise correctly
+convex.setAuth(keycloakAuthenticator);
 
 // Define our API interface
 export interface ConvexAPI {
@@ -72,14 +111,32 @@ export interface ConvexAPI {
     toggleCompleted: (args: { id: TaskId; completed: boolean }) => Promise<void>;
     remove: (args: { id: TaskId }) => Promise<void>;
   };
+  auth: {
+    verifyToken: (args: { token: string }) => Promise<{
+      userId: string;
+      username: string;
+      email?: string;
+      firstName?: string;
+      lastName?: string;
+      isValid: boolean;
+      error?: string;
+    }>;
+  };
 }
 
-export const api = {
-  tasks: {
-    getByUser: "tasks:getByUser",
-    add: "tasks:add",
-    update: "tasks:update",
-    toggleCompleted: "tasks:toggleCompleted",
-    remove: "tasks:remove",
-  },
-} as const;
+// Helper function to verify the token with the backend
+export const verifyToken = async (): Promise<boolean> => {
+  const keycloak = (window as any).keycloakInstance;
+  
+  if (!keycloak || !keycloak.authenticated || !keycloak.token) {
+    return false;
+  }
+  
+  try {
+    const result = await convex.action(api.auth.verifyToken, { token: keycloak.token });
+    return result.isValid;
+  } catch (error) {
+    console.error("Token verification failed:", error);
+    return false;
+  }
+}

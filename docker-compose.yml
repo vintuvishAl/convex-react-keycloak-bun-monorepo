@@ -19,6 +19,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - convex-network
 
   # Database setup service - runs once to ensure DB is created
   db-setup:
@@ -44,6 +46,8 @@ services:
           echo 'Database created successfully!'
         fi
       "
+    networks:
+      - convex-network
 
   # Convex backend
   backend:
@@ -64,9 +68,15 @@ services:
       - POSTGRES_URL=postgresql://postgres:postgres_password@postgres:5432
       - DO_NOT_REQUIRE_SSL=1
       - RUST_LOG=debug
+      # Update Keycloak environment variables to use Docker network hostname
+      - KEYCLOAK_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=master
+      - KEYCLOAK_CLIENT_ID=vite-app
     depends_on:
       db-setup:
         condition: service_completed_successfully
+    networks:
+      - convex-network
     healthcheck:
       test: curl -f http://localhost:3210/version || exit 1
       interval: 10s
@@ -85,6 +95,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    networks:
+      - convex-network
 
   # Keycloak for OAuth 2.0
   keycloak:
@@ -98,45 +110,26 @@ services:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HOSTNAME_STRICT: false
-      # Add the health endpoints explicitly
       KC_HEALTH_ENABLED: "true"
     ports:
       - "8080:8080"
+    networks:
+      - convex-network
     depends_on:
       postgres:
         condition: service_healthy
     command: start-dev
     healthcheck:
-      # Health check with a longer timeout and more retries
       test: ["CMD", "curl", "--fail", "--silent", "http://localhost:8080/"]
       interval: 15s
       timeout: 10s
       retries: 15
       start_period: 60s
 
-
-  # Initialization service (for Keycloak configuration)
-  # init-service:
-  #   image: node:18-alpine
-  #   volumes:
-  #     - ./backend:/app/backend
-  #     - ./frontend:/app/frontend
-  #     - ./init-all.sh:/init-all.sh
-  #   depends_on:
-  #     backend:
-  #       condition: service_healthy
-  #     keycloak:
-  #       condition: service_started
-  #   environment:
-  #     - DOCKER_HOST=unix:///var/run/docker.sock
-  #   command: >
-  #     /bin/sh -c "
-  #       echo '===== Running post-startup initialization ====='
-  #       apk add --no-cache curl jq grep sed bash docker-cli gettext
-  #       chmod +x /init-all.sh
-  #       bash /init-all.sh
-  #     "
-
 volumes:
   postgres_data:
   convex_data:
+
+networks:
+  convex-network:
+    driver: bridge

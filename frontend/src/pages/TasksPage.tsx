@@ -39,8 +39,19 @@ type Task = Doc<"tasks">;
 type Priority = "low" | "medium" | "high";
 
 export default function TasksPage() {
-  const { keycloak } = useKeycloak();
-  const userId = keycloak.tokenParsed?.sub as string;
+  const { keycloak, initialized } = useKeycloak();
+  const userId = keycloak.tokenParsed?.sub;
+  
+  // Show loading state while Keycloak is initializing or there's no userId
+  if (!initialized || !keycloak.authenticated || !userId) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 gap-2">
+        <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full"></div>
+        <p className="text-sm text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
   const tasks = useQuery(api.tasks.getByUser, { userId }) || [];
   const addTask = useMutation(api.tasks.add);
   const updateTask = useMutation(api.tasks.update);

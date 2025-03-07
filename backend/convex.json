@@ -7,12 +7,12 @@
 	"authInfo": [
 	  {
 		"domain": "http://localhost:8080",
-		"applicationID": "vite-app"
+		"applicationID": "convex"
 	  }
 	],
 	"environment": [
-	  "KEYCLOAK_URL", 
-	  "KEYCLOAK_REALM", 
-	  "KEYCLOAK_CLIENT_ID"
+	  "http://localhost:8080", 
+	  "master", 
+	  "convex"
 	]
   }

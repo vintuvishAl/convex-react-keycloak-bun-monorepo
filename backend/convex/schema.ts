@@ -25,21 +25,21 @@ export default defineSchema({
     updatedAt: v.optional(v.string()),
   }),
   
-  // Schema requests table - for tracking schema generation requests
-  schemaRequests: defineTable({
-    entityName: v.string(),
-    description: v.optional(v.string()),
-    fields: v.array(
-      v.object({
-        name: v.string(),
-        type: v.string(),
-        required: v.boolean(),
-      })
-    ),
-    status: v.string(), // 'pending', 'completed', 'failed'
-    userId: v.string(),
-    requestDate: v.string(),
-    completedDate: v.optional(v.string()),
-    error: v.optional(v.string()),
-  }),
+  // Users table for storing user information from Keycloak
+  users: defineTable({
+    keycloakId: v.string(),
+    username: v.string(),
+    email: v.optional(v.string()),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+    lastLogin: v.string(),
+  }).index("by_keycloak_id", ["keycloakId"]),
+  
+  // Auth sessions table to track active sessions
+  authSessions: defineTable({
+    userId: v.id("users"),
+    keycloakId: v.string(),
+    tokenExpiry: v.string(),
+    lastActive: v.string(),
+  }).index("by_user_id", ["userId"])
 });
