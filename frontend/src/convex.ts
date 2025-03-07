@@ -47,43 +47,14 @@ export const keycloakAuthenticator = async () => {
       return null;
     }
 
-    // Parse the token to get user information
-    const tokenData = parseJwt(token);
-    
-    // Return the auth object in the format Convex expects
-    return {
-      tokenData,
-      token,
-      // These fields are required by Convex for authentication
-      issuer: tokenData.iss,
-      subject: tokenData.sub,
-      tokenIdentifier: `${tokenData.iss}/${tokenData.sub}`,
-    };
+    // Return the token string that Convex expects
+    return token;
   } catch (error) {
     console.error("Failed to update/retrieve token:", error);
     return null;
   }
 };
 
-// Helper function to parse JWT without verification
-function parseJwt(token: string) {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error("Error parsing JWT token:", e);
-    return {};
-  }
-}
 
 // Apply the authenticator and ensure we handle the Promise correctly
 convex.setAuth(keycloakAuthenticator);

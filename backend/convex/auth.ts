@@ -114,7 +114,7 @@ export const verifyToken = action({
       // We'll treat this as sufficient for now
 
       // Save user information to database
-      const userId = await ctx.runMutation(api.mutations.saveUser, {
+      const userId = await ctx.runMutation(api.users.saveUser, {
         keycloakId: decodedToken.sub,
         username: decodedToken.preferred_username,
         email: decodedToken.email,
@@ -123,7 +123,7 @@ export const verifyToken = action({
       });
 
       // Save auth session
-      await ctx.runMutation(api.mutations.saveSession, {
+      await ctx.runMutation(api.users.saveSession, {
         userId,
         keycloakId: decodedToken.sub,
         tokenExpiry: new Date(decodedToken.exp * 1000).toISOString()
