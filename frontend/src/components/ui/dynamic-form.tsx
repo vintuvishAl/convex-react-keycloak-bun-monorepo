@@ -55,9 +55,12 @@ export interface DynamicFormProps {
   fields: FormField[];
   onSubmit: (values: Record<string, any>) => void | Promise<void>;
   submitText?: string;
+  submitButtonText?: string;
   className?: string;
   resetAfterSubmit?: boolean;
   defaultValues?: Record<string, any>;
+  cancelButton?: boolean;
+  onCancel?: () => void;
 }
 
 // Helper function to create a Zod schema from field definitions
@@ -86,10 +89,35 @@ const createZodSchema = (fields: FormField[]) => {
         break;
       }
       case 'number': {
-        let fieldSchema = z.number();
-        if (field.required) fieldSchema = fieldSchema.min(field.min || 0);
-        if (field.max) fieldSchema = fieldSchema.max(field.max);
-        schema = fieldSchema;
+        // Create the base number schema with all constraints
+        let numberSchema = z.number({ invalid_type_error: "Must be a number" });
+        
+        // Add min/max constraints
+        if (field.min !== undefined) numberSchema = numberSchema.min(field.min);
+        if (field.max !== undefined) numberSchema = numberSchema.max(field.max);
+        
+        // Apply optional at the end instead of modifying numberSchema
+        const finalNumberSchema = field.required ? numberSchema : numberSchema.optional();
+        
+        if (field.required) {
+          // For required fields
+          schema = z.string()
+            .min(1, 'Required')
+            .transform((val) => {
+              const num = Number(val);
+              return isNaN(num) ? undefined : num;
+            })
+            .pipe(finalNumberSchema);
+        } else {
+          // For optional fields
+          schema = z.string()
+            .transform((val) => {
+              if (val === '') return undefined;
+              const num = Number(val);
+              return isNaN(num) ? undefined : num;
+            })
+            .pipe(finalNumberSchema);
+        }
         break;
       }
       case 'checkbox':
@@ -138,6 +166,7 @@ const createDefaultValues = (fields: FormField[], providedDefaults?: Record<stri
           defaultValues[field.name] = false;
           break;
         case 'number':
+          // For number fields, use empty string for the input but it will be parsed by the schema
           defaultValues[field.name] = '';
           break;
         case 'select':
@@ -161,9 +190,12 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   fields,
   onSubmit,
   submitText = 'Submit',
+  submitButtonText,
   className,
   resetAfterSubmit = false,
   defaultValues: providedDefaults,
+  cancelButton = false,
+  onCancel,
 }) => {
   // Create Zod schema from field definitions
   const zodSchema = createZodSchema(fields);
@@ -174,7 +206,23 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   const form = useForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      await onSubmit(value);
+      // Process number fields before submitting
+      const processedValues: Record<string, any> = {};
+      
+      fields.forEach((field) => {
+        const fieldValue = value[field.name];
+        
+        if (field.type === 'number' && fieldValue !== undefined && fieldValue !== '') {
+          // Convert to number
+          processedValues[field.name] = Number(fieldValue);
+        } else {
+          processedValues[field.name] = fieldValue;
+        }
+      });
+      
+      // Pass the processed values to the onSubmit handler
+      await onSubmit(processedValues);
+      
       if (resetAfterSubmit) {
         form.reset();
       }
@@ -217,7 +265,17 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
                   type={field.type}
                   placeholder={field.placeholder}
                   defaultValue={fieldProps.state.value}
-                  onChange={(e) => fieldProps.handleChange(e.target.value)}
+                  onChange={(e) => {
+                    // For number fields, allow empty string or valid numbers only
+                    if (field.type === 'number') {
+                      const value = e.target.value;
+                      if (value === '' || !isNaN(Number(value))) {
+                        fieldProps.handleChange(value);
+                      }
+                    } else {
+                      fieldProps.handleChange(e.target.value);
+                    }
+                  }}
                   onBlur={fieldProps.handleBlur}
                   className={cn(
                     fieldProps.state.meta.errors?.length ? 'border-destructive' : ''
@@ -316,13 +374,26 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
         </div>
       )}
 
-      <Button
-        type="submit"
-        disabled={form.state.isSubmitting}
-        className="w-full"
-      >
-        {form.state.isSubmitting ? 'Submitting...' : submitText}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          type="submit"
+          disabled={form.state.isSubmitting}
+          className={`${cancelButton ? 'flex-1' : 'w-full'}`}
+        >
+          {form.state.isSubmitting ? 'Submitting...' : submitButtonText || submitText}
+        </Button>
+        
+        {cancelButton && onCancel && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+        )}
+      </div>
     </form>
   );
 };

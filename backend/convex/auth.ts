@@ -129,15 +129,8 @@ export const verifyToken = action({
         validIssuers.push("http://localhost:8080/realms/master"); // Fallback default
       }
       
-      console.log("Token details for debugging:", {
-        receivedIssuer: decodedToken.iss,
-        validIssuers,
-        tokenAudience: decodedToken.aud,
-        clientId: decodedToken.azp
-      });
-      
       if (!validIssuers.includes(decodedToken.iss)) {
-        console.log("Token issuer mismatch:", decodedToken.iss);
+       
         throw new Error(`Invalid token issuer: ${decodedToken.iss}`);
       }
 
@@ -146,7 +139,7 @@ export const verifyToken = action({
       const validAudiences = (process.env.AUTH_VALID_AUDIENCES || "").split(",").filter(Boolean);
 
       if (validClientIds.length > 0 && !validClientIds.includes(decodedToken.azp)) {
-        console.log("Client ID mismatch:", decodedToken.azp);
+        
         throw new Error("Invalid client ID");
       }
 
@@ -157,10 +150,6 @@ export const verifyToken = action({
       // Validate token source using configured values
       const validSources = (process.env.AUTH_VALID_SOURCES || "").split(",").filter(Boolean);
       if (validSources.length > 0 && (!decodedToken.azp || !validSources.includes(decodedToken.azp))) {
-        console.log("Token source validation failed:", {
-          receivedSource: decodedToken.azp,
-          validSources
-        });
         throw new Error("Invalid token source");
       }
 
@@ -218,13 +207,6 @@ export const verifyToken = action({
         tokenId: decodedToken.jti
       });
 
-      console.log("Token validation successful:", {
-        userId: decodedToken.sub,
-        username: decodedToken.preferred_username,
-        sessionState: decodedToken.session_state,
-        exp: new Date(decodedToken.exp * 1000).toISOString()
-      });
-      
       return {
         userId: decodedToken.sub,
         username: decodedToken.preferred_username,
@@ -238,7 +220,6 @@ export const verifyToken = action({
       };
 
     } catch (error) {
-      console.error("Token verification failed:", error);
       return {
         isValid: false,
         error: error instanceof Error ? error.message : "Unknown error"
