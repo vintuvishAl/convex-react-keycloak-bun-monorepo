@@ -52,13 +52,13 @@ const HomePage: React.FC = () => {
         <div className="container px-4 md:px-6 mx-auto">
           <div className="flex flex-col items-center space-y-4 text-center">
             <Badge variant="outline" className="px-3 py-1 text-sm border-primary/30 bg-primary/10">
-              Full Stack Application Demo
+              AI-Powered Admin Panel
             </Badge>
             <h1 className="text-3xl md:text-5xl font-bold tracking-tighter">
-              Convex + Keycloak + React
+              Modern Full Stack Admin Panel
             </h1>
-            <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              A modern full-stack application with real-time data synchronization, OAuth 2.0 authentication, and dynamic form generation
+            <p className="max-w-[700px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              An AI agent-ready admin dashboard with real-time data synchronization, OAuth 2.0 authentication, and dynamic components - all with minimal setup
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               {keycloak.authenticated ? (
@@ -126,14 +126,14 @@ const HomePage: React.FC = () => {
                 <div className="p-2 bg-primary/10 rounded-md w-10 h-10 flex items-center justify-center mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
                 </div>
-                <CardTitle>Modern UI Components</CardTitle>
+                <CardTitle>AI-Ready Components</CardTitle>
                 <CardDescription>
-                  Built with React, Tailwind CSS and shadcn/ui components
+                  Component system designed for AI agent interaction
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Responsive, accessible, and customizable UI components that work seamlessly in light and dark modes.
+                  Smart components that seamlessly integrate with AI agents for automated form generation, data processing, and UI management.
                 </p>
               </CardContent>
             </Card>
@@ -143,14 +143,14 @@ const HomePage: React.FC = () => {
                 <div className="p-2 bg-primary/10 rounded-md w-10 h-10 flex items-center justify-center mb-2">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M3 5v14l8-4 8 4V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"/></svg>
                 </div>
-                <CardTitle>Dynamic Forms</CardTitle>
+                <CardTitle>Minimal Setup</CardTitle>
                 <CardDescription>
-                  Powered by @tanstack/react-form and @tanstack/react-table
+                  Up and running in minutes with Docker
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Create, validate, and manage complex forms with dynamic fields and powerful data tables with minimal code.
+                  Pre-configured environment with everything you need to start developing your admin dashboard right away.
                 </p>
               </CardContent>
             </Card>
@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
               <Badge variant="secondary">PostgreSQL</Badge>
               <Badge variant="secondary">Docker</Badge>
               <Badge variant="secondary">Bun</Badge>
-              <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/10 to-purple-500/10">AI-Agent Ready</Badge>
+              <Badge variant="secondary" className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 font-semibold">AI-Agent Ready</Badge>
             </div>
           </div>
 
@@ -210,7 +210,7 @@ const HomePage: React.FC = () => {
                         <div className="space-y-4">
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-medium">Dynamic Form</span>
-                                <Badge variant="outline" className="text-xs">Generated</Badge>
+                                <Badge variant="outline" className="text-xs">AI Generated</Badge>
                             </div>
                             <DynamicForm 
                               fields={demoFormFields}
@@ -237,9 +237,9 @@ const HomePage: React.FC = () => {
             <div className="container px-4 md:px-6 mx-auto">
               <div className="text-center mb-12">
                 <Badge variant="outline" className="mb-4">Architecture</Badge>
-                <h2 className="text-3xl font-bold mb-4">Optimized Architecture</h2>
+                <h2 className="text-3xl font-bold mb-4">AI-Ready Admin Panel</h2>
                 <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Built with modern technologies and best practices for scalability, maintainability, and developer experience
+                  Built with modern technologies and best practices for intelligent automation, scalability, and exceptional developer experience
                 </p>
               </div>
 
@@ -252,8 +252,8 @@ const HomePage: React.FC = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" y1="22" x2="12" y2="12"></line></svg>
                       </div>
                       <div>
-                        <CardTitle className="text-2xl">Unified Monorepo Structure</CardTitle>
-                        <CardDescription>Clean separation of concerns with integrated development workflow</CardDescription>
+                        <CardTitle className="text-2xl">One-Click Setup Admin Panel</CardTitle>
+                        <CardDescription>Clean architecture with integrated AI-agent support</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -285,8 +285,8 @@ const HomePage: React.FC = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
                           </div>
                           <div>
-                            <h4 className="font-medium text-primary">Docker Integration</h4>
-                            <p className="text-sm text-muted-foreground">Containerized development ensures consistency across platforms with simplified deployment.</p>
+                            <h4 className="font-medium text-primary">Minimal Setup</h4>
+                            <p className="text-sm text-muted-foreground">Get running in minutes with containerized development ensuring consistency across all environments.</p>
                           </div>
                         </div>
                         <div className="flex items-start gap-3">
@@ -374,8 +374,8 @@ const HomePage: React.FC = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path></svg>
                       </div>
                       <div>
-                        <CardTitle>Enterprise-Ready Features</CardTitle>
-                        <CardDescription>Built for scalability and security</CardDescription>
+                        <CardTitle>AI-Powered Admin Features</CardTitle>
+                        <CardDescription>Built for intelligent automation and scale</CardDescription>
                       </div>
                     </div>
                   </CardHeader>
@@ -392,7 +392,7 @@ const HomePage: React.FC = () => {
                         <div className="flex items-start gap-3">
                           <Badge variant="outline" className="shrink-0">Forms</Badge>
                           <div>
-                            <h4 className="font-medium text-primary">Dynamic Forms</h4>
+                            <h4 className="font-medium text-primary">AI-Generated Forms</h4>
                             <p className="text-sm text-muted-foreground">Schema-driven form generation with validation and complex dependencies.</p>
                           </div>
                         </div>
@@ -408,8 +408,8 @@ const HomePage: React.FC = () => {
                         <div className="flex items-start gap-3">
                           <Badge variant="outline" className="shrink-0">Scale</Badge>
                           <div>
-                            <h4 className="font-medium text-primary">Scalable Design</h4>
-                            <p className="text-sm text-muted-foreground">Built to handle growing user bases and increasing data loads.</p>
+                            <h4 className="font-medium text-primary">One-Click Deployment</h4>
+                            <p className="text-sm text-muted-foreground">Minimal setup required to get your admin panel up and running.</p>
                           </div>
                         </div>
                       </div>
@@ -423,9 +423,9 @@ const HomePage: React.FC = () => {
           {/* CTA Section */}
           <Card className="border-primary/20 bg-primary/5 mt-10">
             <CardHeader>
-              <CardTitle className="text-xl">Ready to explore?</CardTitle>
+              <CardTitle className="text-xl">Ready to explore your AI-ready admin panel?</CardTitle>
               <CardDescription>
-                Try out the demo application with dynamic forms, real-time data, and more
+                Try out the demo application with dynamic forms, AI agent integration, real-time data, and more
               </CardDescription>
             </CardHeader>
             <CardFooter>
