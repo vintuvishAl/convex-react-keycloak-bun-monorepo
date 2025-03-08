@@ -233,182 +233,189 @@ const HomePage: React.FC = () => {
           </div>
           
           {/* Architecture Benefits Section */}
-          <section className="py-12 bg-primary/5">
+          <section className="py-16">
             <div className="container px-4 md:px-6 mx-auto">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold text-center mb-8">Optimized Architecture</h2>
-                <div className="grid gap-6">
-                  <Card>
+              <div className="text-center mb-12">
+                <Badge variant="outline" className="mb-4">Architecture</Badge>
+                <h2 className="text-3xl font-bold mb-4">Optimized Architecture</h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto">
+                  Built with modern technologies and best practices for scalability, maintainability, and developer experience
+                </p>
+              </div>
+
+              <div className="grid gap-8">
+                {/* Main Architecture Card */}
+                <Card className="bg-gradient-to-br from-primary/5 to-background border-primary/20">
+                  <CardHeader>
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.29 7 12 12 20.71 7"></polyline><line x1="12" y1="22" x2="12" y2="12"></line></svg>
+                      </div>
+                      <div>
+                        <CardTitle className="text-2xl">Unified Monorepo Structure</CardTitle>
+                        <CardDescription>Clean separation of concerns with integrated development workflow</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-primary/10 rounded-md mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-primary">AI-Ready Infrastructure</h4>
+                            <p className="text-sm text-muted-foreground">Dynamic form generation and AI-friendly schema definitions make it easy to create and manage complex data structures.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-primary/10 rounded-md mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-primary">Type-Safe Development</h4>
+                            <p className="text-sm text-muted-foreground">End-to-end TypeScript integration with automatic type generation from database to UI.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-primary/10 rounded-md mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 7h.01"/><path d="M17 7h.01"/><path d="M7 17h.01"/><path d="M17 17h.01"/></svg>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-primary">Docker Integration</h4>
+                            <p className="text-sm text-muted-foreground">Containerized development ensures consistency across platforms with simplified deployment.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="p-2 bg-primary/10 rounded-md mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg>
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-primary">Cross-Platform Support</h4>
+                            <p className="text-sm text-muted-foreground">Setup scripts for both Windows and Unix systems ensure smooth onboarding.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Technology Stack Cards */}
+                <div className="grid md:grid-cols-2 gap-8">
+                  <Card className="backdrop-blur-sm bg-background/80 border-primary/20">
                     <CardHeader>
-                      <CardTitle>Unified Monorepo Structure</CardTitle>
-                      <CardDescription>
-                        Clean separation of concerns with integrated development workflow
-                      </CardDescription>
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-lg">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5"/><path d="M16 19h6"/><path d="M19 16v6"/></svg>
+                        </div>
+                        <div>
+                          <CardTitle>Frontend Development</CardTitle>
+                          <CardDescription>Vite + React + TanStack</CardDescription>
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">AI-Ready Architecture</h4>
-                            <p className="text-sm text-muted-foreground">Production-grade dynamic form infrastructure makes it easy for AI agents to create and manage complex forms and data structures.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">HMR</Badge>
+                          <p className="text-sm text-muted-foreground">Lightning-fast Hot Module Replacement updates your app instantly.</p>
                         </div>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Organized Development</h4>
-                            <p className="text-sm text-muted-foreground">Backend and frontend code are cleanly separated yet tightly integrated, making development and deployment streamlined.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">Bundle</Badge>
+                          <p className="text-sm text-muted-foreground">Optimized production bundles with automatic code splitting.</p>
                         </div>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Docker Integration</h4>
-                            <p className="text-sm text-muted-foreground">Containerized development environment ensures consistency across different platforms and simplified deployment process.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Cross-Platform Support</h4>
-                            <p className="text-sm text-muted-foreground">Setup scripts for both Windows (PowerShell) and Unix systems ensure smooth onboarding across different development environments.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">UI</Badge>
+                          <p className="text-sm text-muted-foreground">Component-driven development with shadcn/ui and TanStack.</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Client-Side Development with Vite</CardTitle>
-                        <CardDescription>
-                          Lightning-fast HMR and optimized build process
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-primary/10 rounded-md mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Enhanced Development Experience</h4>
-                              <p className="text-sm text-muted-foreground">Hot Module Replacement updates your app instantly without page reload, making development faster and more efficient.</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-primary/10 rounded-md mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Optimized Bundle Size</h4>
-                              <p className="text-sm text-muted-foreground">Vite's build process creates highly optimized production bundles with automatic code splitting and caching strategies.</p>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Convex Backend with Bun Runtime</CardTitle>
-                        <CardDescription>
-                          Enhanced performance and developer productivity
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-primary/10 rounded-md mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Superior Performance</h4>
-                              <p className="text-sm text-muted-foreground">Bun's JavaScript runtime offers significantly faster startup times and better memory efficiency compared to browser-based environments.</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-primary/10 rounded-md mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Enhanced Security</h4>
-                              <p className="text-sm text-muted-foreground">Running Convex in Bun provides better isolation and security compared to browser environments, keeping sensitive operations server-side.</p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 bg-primary/10 rounded-md mt-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                            </div>
-                            <div>
-                              <h4 className="font-medium">Native TypeScript Support</h4>
-                              <p className="text-sm text-muted-foreground">Bun's built-in TypeScript support ensures type safety across your backend without additional build steps or configuration.</p>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <Card className="mt-6">
+                  <Card className="backdrop-blur-sm bg-background/80 border-primary/20">
                     <CardHeader>
-                      <CardTitle>Enterprise-Ready Architecture</CardTitle>
-                      <CardDescription>
-                        Built for scalability and maintainability
-                      </CardDescription>
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary/10 rounded-lg">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M3 2v6h6"></path><path d="M21 12A9 9 0 0 0 6 5.3L3 8"></path><path d="M21 22v-6h-6"></path><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"></path></svg>
+                        </div>
+                        <div>
+                          <CardTitle>Backend Architecture</CardTitle>
+                          <CardDescription>Convex + Bun Runtime</CardDescription>
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Full-Stack Type Safety</h4>
-                            <p className="text-sm text-muted-foreground">End-to-end TypeScript integration ensures type safety from database schema to UI components, with automatic type generation.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">Fast</Badge>
+                          <p className="text-sm text-muted-foreground">Significantly faster startup times and better memory efficiency.</p>
                         </div>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Modern Development Experience</h4>
-                            <p className="text-sm text-muted-foreground">Combines Vite's rapid development with Bun's performance optimizations and Convex's real-time capabilities for an optimal workflow.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">Secure</Badge>
+                          <p className="text-sm text-muted-foreground">Enhanced isolation and security for sensitive operations.</p>
                         </div>
                         <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Component-Driven UI</h4>
-                            <p className="text-sm text-muted-foreground">Leverages shadcn/ui and TanStack libraries for building complex interfaces with reusable, accessible components.</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <div className="p-2 bg-primary/10 rounded-md mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Enterprise Authentication</h4>
-                            <p className="text-sm text-muted-foreground">Production-ready authentication with Keycloak supporting SSO, role-based access control, and multiple identity providers.</p>
-                          </div>
+                          <Badge variant="outline" className="shrink-0">Types</Badge>
+                          <p className="text-sm text-muted-foreground">Built-in TypeScript support without additional configuration.</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Enterprise Features Card */}
+                <Card className="bg-gradient-to-br from-background to-primary/5 border-primary/20">
+                  <CardHeader>
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-primary/10 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path></svg>
+                      </div>
+                      <div>
+                        <CardTitle>Enterprise-Ready Features</CardTitle>
+                        <CardDescription>Built for scalability and security</CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <Badge variant="outline" className="shrink-0">Auth</Badge>
+                          <div>
+                            <h4 className="font-medium text-primary">Keycloak Integration</h4>
+                            <p className="text-sm text-muted-foreground">SSO, role-based access control, and multiple identity providers.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Badge variant="outline" className="shrink-0">Forms</Badge>
+                          <div>
+                            <h4 className="font-medium text-primary">Dynamic Forms</h4>
+                            <p className="text-sm text-muted-foreground">Schema-driven form generation with validation and complex dependencies.</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <Badge variant="outline" className="shrink-0">Data</Badge>
+                          <div>
+                            <h4 className="font-medium text-primary">Real-time Sync</h4>
+                            <p className="text-sm text-muted-foreground">Automatic data synchronization across all connected clients.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Badge variant="outline" className="shrink-0">Scale</Badge>
+                          <div>
+                            <h4 className="font-medium text-primary">Scalable Design</h4>
+                            <p className="text-sm text-muted-foreground">Built to handle growing user bases and increasing data loads.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </section>

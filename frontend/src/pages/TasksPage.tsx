@@ -1,21 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  SortingState,
-} from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@backend/convex/_generated/api";
 import type { Doc } from "@backend/convex/_generated/dataModel";
@@ -30,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import DynamicForm, { FormField } from "@/components/ui/dynamic-form";
 import { useKeycloak } from "@/KeycloakProvider";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { DynamicTable, SortIndicator } from "@/components/ui/dynamic-table";
 
 // Type for tasks from the database
 type Task = Doc<"tasks">;
@@ -58,7 +43,6 @@ export default function TasksPage() {
   const toggleTask = useMutation(api.tasks.toggleCompleted);
   const deleteTask = useMutation(api.tasks.remove);
 
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -133,14 +117,6 @@ export default function TasksPage() {
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleString();
-  };
-
-  // Sort indicator component
-  const SortIndicator = ({ isSorted }: { isSorted: false | 'asc' | 'desc' }) => {
-    if (!isSorted) return <ArrowUpDown className="ml-2 h-4 w-4" />;
-    return isSorted === 'asc' ? 
-      <ArrowUp className="ml-2 h-4 w-4" /> : 
-      <ArrowDown className="ml-2 h-4 w-4" />;
   };
 
   const columns = useMemo<ColumnDef<Task>[]>(
@@ -262,17 +238,6 @@ export default function TasksPage() {
     [toggleTask, deleteTask, handleEditTask]
   );
 
-  const table = useReactTable({
-    data: tasks,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
-    state: {
-      sorting,
-    },
-  });
-
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
@@ -295,13 +260,11 @@ export default function TasksPage() {
                 {editingTask ? "Edit Task" : "Create New Task"}
               </DialogTitle>
             </DialogHeader>
-            {/* Using DynamicForm instead of manual form */}
             <DynamicForm
               fields={taskFormFields}
               onSubmit={onSubmit}
               submitText={editingTask ? "Update Task" : "Create Task"}
               resetAfterSubmit={true}
-              // If editing a task, initialize form with current values
               defaultValues={editingTask ? {
                 title: editingTask.title,
                 description: editingTask.description || "",
@@ -313,51 +276,13 @@ export default function TasksPage() {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No tasks found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DynamicTable 
+        data={tasks}
+        columns={columns}
+        emptyMessage="No tasks found."
+        filterColumn="title"
+        filterPlaceholder="Filter tasks by title..."
+      />
     </div>
   );
 }
