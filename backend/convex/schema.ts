@@ -3,15 +3,7 @@ import { v } from "convex/values";
 
 // Define your Convex database schema
 export default defineSchema({
-  // Chat messages table
-  chats: defineTable({
-    content: v.string(),
-    userId: v.string(),
-    userName: v.string(),
-    timestamp: v.string(),
-    isAiMessage: v.boolean(),
-    promptId: v.optional(v.id("messages")),
-  }),
+  
   
   // Tasks table
   tasks: defineTable({
