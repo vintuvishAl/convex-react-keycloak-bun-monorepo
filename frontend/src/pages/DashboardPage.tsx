@@ -16,7 +16,6 @@ import {
 import { navigation } from '@/config/navigation';
 import { useRBAC } from '@/hooks/use-rbac';
 import Overview from './DashboardPage/Overview';
-import Products from './DashboardPage/Products';
 import TasksPage from './TasksPage';
 
 const DashboardPage: React.FC = () => {
@@ -97,7 +96,6 @@ const DashboardPage: React.FC = () => {
             <Routes>
               <Route path="/" element={<Overview />} />
               <Route path="/tasks" element={<TasksPage />} />
-              <Route path="/products" element={<Products />} />
               <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Suspense>

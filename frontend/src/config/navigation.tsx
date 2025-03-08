@@ -37,12 +37,5 @@ export const navigation: NavigationConfig = {
     icon: <TasksIcon />,
     roles: ['user', 'admin'],
     component: lazy(() => import('../pages/TasksPage')),
-  },
-  products: {
-    title: 'Products',
-    path: '/dashboard/products',
-    icon: <ProductsIcon />,
-    roles: ['admin'],
-    component: lazy(() => import('../pages/DashboardPage/Products')),
-  },
+  }
 };
