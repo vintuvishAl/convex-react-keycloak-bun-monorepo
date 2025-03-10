@@ -8,6 +8,24 @@ This project provides a complete full-stack application setup using:
 
 Everything is configured to run in a one-step Docker Compose setup with a clean separation between frontend and backend.
 
+## Application Screenshots
+
+### Tasks Page
+
+![Tasks Page](attachments/1.png)
+
+### Admin Panel
+
+![Admin Panel](attachments/2.png)
+
+### Dynamic Form Builder
+
+![Dynamic Form Builder](attachments/3.png)
+
+### Home Page
+
+![Home Page](attachments/4.png)
+
 ## Project Structure
 
 ```
@@ -198,23 +216,7 @@ npx convex deploy
                        └──────────┘        └─────────┘
 ```
 
-## Application Screenshots
 
-### Tasks Page
-
-![Tasks Page](attachments/1.png)
-
-### Admin Panel
-
-![Admin Panel](attachments/2.png)
-
-### Dynamic Form Builder
-
-![Dynamic Form Builder](attachments/3.png)
-
-### Home Page
-
-![Home Page](attachments/4.png)
 
 ## Troubleshooting
 
