@@ -1,8 +1,8 @@
-# Full Stack Application with Vite, React, Bun, Convex, and Keycloak
+# Full Stack Application with Vite, React, Convex, and Keycloak
 
 This project provides a complete full-stack application setup using:
 
-- **Frontend**: Vite with React and Tailwind CSS 4.0, running on Bun
+- **Frontend**: Vite with React and Tailwind CSS 4.0
 - **Backend**: Self-hosted Convex with PostgreSQL
 - **Authentication**: Keycloak OAuth 2.0
 
@@ -93,13 +93,11 @@ npm install
 - **PostgreSQL**: Shared database for both Convex and Keycloak
 - **Keycloak**: Open source identity and access management
 - **Convex**: Real-time backend with automatic API generation
-- **Bun**: JavaScript runtime for efficient server-side rendering
 
 ### Frontend
 - **Vite**: Next generation frontend tooling
-- **React**: UI library with TypeScript support
+- **React**: UI library with TypeScript support (client-side only)
 - **Tailwind CSS 4.0**: Utility-first CSS framework
-- **SSR**: Server-side rendering support
 
 ### Backend
 - **Convex**: Backend-as-a-service with real-time data sync
@@ -129,6 +127,34 @@ To log in to the Keycloak admin console:
 1. Go to http://localhost:8080/admin
 2. Use the credentials mentioned above
 
+#### Keycloak Server Configuration
+
+The application is configured to work with Keycloak using the following settings:
+
+- **Server URL**: http://localhost:8080
+- **Realm**: master
+- **Client ID**: vite-app
+
+##### Authentication Settings
+- **Rate Limiting**:
+  - Window: 60000ms (1 minute)
+  - Max attempts: 5 per window
+
+- **Token Validation**:
+  - Token expiration grace period: 30 seconds
+  - Max token age: 86400 seconds (24 hours)
+
+- **Valid Issuers**:
+  - http://localhost:8080/realms/master
+  - http://keycloak:8080/realms/master
+  - https://localhost:8443/realms/master
+
+- **Valid Client IDs**: vite-app
+- **Valid Audiences**: master-realm, account
+- **Valid Sources**: vite-app, master-realm
+
+If you need to modify these settings, update the corresponding variables in the `backend/.env.local` file.
+
 ### Convex Dashboard
 
 To access the Convex dashboard:
@@ -150,7 +176,7 @@ npx convex deploy
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │   Browser   │────▶│   Frontend  │────▶│    Convex   │
-│             │◀────│  (Vite+Bun) │◀────│   Backend   │
+│             │◀────│  (Vite+React)│◀────│   Backend   │
 └─────────────┘     └─────────────┘     └──────┬──────┘
        │                    │                   │
        │                    │                   │
