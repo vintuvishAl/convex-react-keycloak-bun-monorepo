@@ -1,8 +1,8 @@
-# Full Stack Application with Vite, React, Bun, Convex, and Keycloak
+# Full Stack Application with Vite, React, Convex, and Keycloak
 
 This project provides a complete full-stack application setup using:
 
-- **Frontend**: Vite with React and Tailwind CSS 4.0, running on Bun
+- **Frontend**: Vite with React and Tailwind CSS 4.0
 - **Backend**: Self-hosted Convex with PostgreSQL
 - **Authentication**: Keycloak OAuth 2.0
 
@@ -93,7 +93,6 @@ npm install
 - **PostgreSQL**: Shared database for both Convex and Keycloak
 - **Keycloak**: Open source identity and access management
 - **Convex**: Real-time backend with automatic API generation
-- **Bun**: JavaScript runtime for efficient server-side rendering
 
 ### Frontend
 - **Vite**: Next generation frontend tooling
@@ -150,7 +149,7 @@ npx convex deploy
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
 │   Browser   │────▶│   Frontend  │────▶│    Convex   │
-│             │◀────│  (Vite+Bun) │◀────│   Backend   │
+│             │◀────│  (Vite) │◀────│   Backend   │
 └─────────────┘     └─────────────┘     └──────┬──────┘
        │                    │                   │
        │                    │                   │
