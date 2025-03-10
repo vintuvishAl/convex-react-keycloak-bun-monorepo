@@ -198,6 +198,24 @@ npx convex deploy
                        └──────────┘        └─────────┘
 ```
 
+## Application Screenshots
+
+### Tasks Page
+
+![Tasks Page](attachments/1.png)
+
+### Admin Panel
+
+![Admin Panel](attachments/2.png)
+
+### Dynamic Form Builder
+
+![Dynamic Form Builder](attachments/3.png)
+
+### Home Page
+
+![Home Page](attachments/4.png)
+
 ## Troubleshooting
 
 ### Initial Setup Issues
