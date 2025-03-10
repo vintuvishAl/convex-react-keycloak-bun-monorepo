@@ -25,66 +25,59 @@ project/
 │
 ├── docker-compose.yml    # Docker Compose configuration
 ├── init-all.sh           # Linux/Docker initialization script
-├── init-project.ps1      # Windows PowerShell initialization script
 └── README.md             # This documentation file
 ```
 
 ## Quick Start
 
 1. Clone this repository
-2. Run the following command to start all services:
 
+2. Start the Docker services:
 ```bash
 docker compose up -d
 ```
 
-3. The system includes an automated initialization process with the `init-service` container that will:
-   - Generate a Convex admin key
-   - Configure Keycloak
-   - Deploy the Convex schema
-   - Set up necessary dependencies
-
-4. Access the application at http://localhost:3000
-
-## Manual Setup
-
-For Windows users, a PowerShell script is provided:
-
-```powershell
-# Run from PowerShell
-./init-project.ps1
-```
-
-For manual setup on any platform:
-
-1. Start the Docker services:
-```bash
-docker compose up -d
-```
-
-2. Generate a Convex admin key:
+3. Generate a Convex admin key:
 ```bash
 docker compose exec backend bash -c "cd /convex && ./generate_admin_key.sh"
 ```
 
-3. Add the generated admin key to `backend/.env.local`:
+4. Create a `.env.local` file in the `backend` directory with the generated admin key:
 ```
 CONVEX_SELF_HOSTED_URL=http://localhost:3210
 CONVEX_SELF_HOSTED_ADMIN_KEY=your_admin_key_here
 ```
 
-4. Configure Keycloak (create client and test user)
-5. Deploy Convex schema:
+5. Manually configure Keycloak with the following steps:
+   - Access Keycloak admin console at http://localhost:8080/admin
+   - Default admin credentials: username `admin`, password `admin` 
+   - Create a new realm or use the default "master" realm
+   - Create a client with Client ID `vite-app`
+   - Configure client settings:
+     - Set Access Type to `public`
+     - Set Valid Redirect URIs to `http://localhost:3000/*`
+     - Set Web Origins to `http://localhost:3000` (or `*` for development)
+   - Create a test user in the realm
+
+6. Create a `.env.local` file in the `frontend` directory with your Keycloak settings:
+```
+VITE_KEYCLOAK_URL=http://localhost:8080
+VITE_KEYCLOAK_REALM=master
+VITE_KEYCLOAK_CLIENT_ID=vite-app
+```
+
+7. Deploy Convex schema:
 ```bash
 cd backend
 npm install
 npx convex deploy
 ```
 
-6. Install frontend dependencies:
+8. Install frontend dependencies:
 ```bash
 cd frontend
 npm install
+npm run dev
 ```
 
 ## What's Included
@@ -118,42 +111,61 @@ npm install
 
 ### Keycloak Setup
 
-The Keycloak instance comes pre-configured with:
-- Admin credentials: username `admin`, password `admin`
-- A client ID called `vite-app` for the frontend application
-- A test user: username `testuser`, password `password`
+Keycloak does not come with pre-configured settings. You need to manually create and configure it:
 
-To log in to the Keycloak admin console:
-1. Go to http://localhost:8080/admin
-2. Use the credentials mentioned above
+1. Access Keycloak admin console at http://localhost:8080/admin
+2. Default admin credentials: username `admin`, password `admin`
+3. Configure the Keycloak realm and client:
+   - Create a new realm or use the "master" realm
+   - Create a new client ID (e.g., `vite-app`)
+   - Configure client settings:
+     - Set Access Type to `public`
+     - Set Valid Redirect URIs to `http://localhost:3000/*`
+     - Set Web Origins to `http://localhost:3000` or `*` for development
+4. Create test users as needed in the realm
 
-#### Keycloak Server Configuration
+#### Keycloak Environment Configuration
 
-The application is configured to work with Keycloak using the following settings:
+After configuring Keycloak, you need to create the following environment files:
 
-- **Server URL**: http://localhost:8080
-- **Realm**: master
-- **Client ID**: vite-app
+**Backend `.env.local`**:
+```
+# Convex configuration
+CONVEX_SELF_HOSTED_URL=http://localhost:3210
+CONVEX_SELF_HOSTED_ADMIN_KEY=your_generated_admin_key
 
-##### Authentication Settings
-- **Rate Limiting**:
-  - Window: 60000ms (1 minute)
-  - Max attempts: 5 per window
+# Keycloak configuration for backend validation
+KEYCLOAK_URL=http://localhost:8080
+KEYCLOAK_REALM=master
+KEYCLOAK_CLIENT_ID=vite-app
 
-- **Token Validation**:
-  - Token expiration grace period: 30 seconds
-  - Max token age: 86400 seconds (24 hours)
+# Token validation settings
+TOKEN_EXPIRATION_GRACE_PERIOD_SECONDS=30
+MAX_TOKEN_AGE_SECONDS=86400
 
-- **Valid Issuers**:
-  - http://localhost:8080/realms/master
-  - http://keycloak:8080/realms/master
-  - https://localhost:8443/realms/master
+# Rate limiting settings
+RATE_LIMITING_WINDOW_MS=60000
+RATE_LIMITING_MAX_REQUESTS=5
 
-- **Valid Client IDs**: vite-app
-- **Valid Audiences**: master-realm, account
-- **Valid Sources**: vite-app, master-realm
+# Valid issuers for token validation
+VALID_ISSUERS=http://localhost:8080/realms/master,http://keycloak:8080/realms/master,https://localhost:8443/realms/master
 
-If you need to modify these settings, update the corresponding variables in the `backend/.env.local` file.
+# Valid clients, audiences and sources
+VALID_CLIENT_IDS=vite-app
+VALID_AUDIENCES=master-realm,account
+VALID_SOURCES=vite-app,master-realm
+```
+
+**Frontend `.env.local`**:
+```
+# Convex URL for client connection
+VITE_CONVEX_URL=http://localhost:3210
+
+# Keycloak configuration for frontend authentication
+VITE_KEYCLOAK_URL=http://localhost:8080
+VITE_KEYCLOAK_REALM=master
+VITE_KEYCLOAK_CLIENT_ID=vite-app
+```
 
 ### Convex Dashboard
 
@@ -189,11 +201,9 @@ npx convex deploy
 ## Troubleshooting
 
 ### Initial Setup Issues
-- If the automatic initialization fails, check the logs with `docker compose logs init-service`
-- You can manually run the initialization with:
-  ```bash
-  docker compose exec init-service bash /init-all.sh
-  ```
+- Ensure you've created the proper `.env.local` files in both backend and frontend directories
+- Make sure the Convex admin key generated is correctly copied to the backend `.env.local` file
+- If Keycloak configuration fails, check that you've properly set up the client in the Keycloak admin console
 
 ### Services Not Starting
 - Check Docker Compose logs with `docker compose logs <service-name>`
@@ -201,6 +211,8 @@ npx convex deploy
 
 ### Authentication Issues
 - Make sure Keycloak is properly configured with the correct redirect URIs
+- Check that your `.env.local` files contain the correct Keycloak settings
+- Verify that the client ID matches between Keycloak setup and your environment files
 - Check the browser console for any CORS or OAuth-related errors
 
 ### Convex Connectivity
